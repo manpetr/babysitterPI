@@ -20,7 +20,6 @@ def video_feed():
 
 @app.route("/getmotions")
 def GetMotions():
-	title = "Online"
 	return render_template("motions.html"
 		, title = control.GetTitle()
 		, recording = control.IsRecording()
