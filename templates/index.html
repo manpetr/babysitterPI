@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+		<title>Patule online</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+  	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+	  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+		<div class="container-fluid">
+			<div class="embed-responsive embed-responsive-4by3">
+				<img class="embed-responsive-item" src="{{ url_for('video_feed') }}">
+			</div>
+			<p></p>
+			<div id="motions"></div>
+		</div>
+		<script>
+			var motionTimer = 0;
+			var defaultTimeout = 1000;
+			var nextTimout = defaultTimeout;
+			function RefreshMotions(request = undefined)
+			{
+				if(motionTimer != 0)
+				{
+					clearTimeout(motionTimer);
+				}
+				if(request)
+				{
+					$.getJSON(request,
+                function(data)
+								{
+									$('#title').html(data);
+									nextTimout = 500;
+            		});
+				}
+				$.ajax(
+				{
+					url: 'getmotions',
+					success: function(data)
+					{
+						$('#motions').html(data);
+					},
+					complete: function()
+					{
+						motionTimer = setTimeout(RefreshMotions, nextTimout);
+						if(nextTimout !=defaultTimeout)
+						{
+							nextTimout = defaultTimeout;
+						}
+					}
+				});
+			};
+			RefreshMotions();
+		</script>
+  </body>
+</html>

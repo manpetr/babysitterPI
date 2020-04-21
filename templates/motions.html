@@ -1,0 +1,43 @@
+<div class="d-flex justify-content-between">
+	<h6>
+		<div id="title">{{ title }}</div>
+	</h6>	
+	<div class="font-weight-lighter">
+		<b>Last Move:</b> {{ lastMove }}s, <b>Duration:</b> {{ lastDuration }}s
+	</div>
+</div>
+
+<button class="btn btn-secondary btn-sm" role="button" onclick="RefreshMotions('/now')">Camera</button>
+<button class="btn btn-secondary btn-sm" role="button" onclick="RefreshMotions('/stop')">Stop</button>
+<button href=# class="btn btn-danger btn-sm" role="button" onclick="RefreshMotions('/rec')">
+{% if recording %} <span class="spinner-border spinner-border-sm"></span> {% endif %}Rec</button>
+
+{% if watching %}
+<button href=# class="btn btn-success btn-sm" role="button" onclick="RefreshMotions('/watch')">Watching
+{% else %}
+<button href=# class="btn btn-warning btn-sm" role="button" onclick="RefreshMotions('/watch')">Watch
+{% endif %}
+</button>
+<p> </p>
+
+<table class="table">
+	<thead>
+		<tr>
+			<th>Time</th>
+			<th>Size</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for date, duration, href in motions %}
+		<tr>
+			<td class="align-middle"> {{ date }} </td>
+			<td class="align-middle"> {{ duration }} </td>
+			<td class="align-middle"> <button href=# class="btn  btn-secondary btn-sm" role="button" onclick="RefreshMotions('{{ href }}')">see</button> </td>
+			<td class="align-middle"> <button href=# class="btn  btn-danger btn-sm" role="button" onclick="RefreshMotions('/del{{ href }}')">del</button> </td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+<script>
+
+</script>
