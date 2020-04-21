@@ -7,7 +7,7 @@ from enum import Enum
 
 class E_State(Enum):
 	stopped = 0
-	now = 1
+	camera = 1
 	recording = 2
 	history = 3
 
@@ -56,7 +56,7 @@ class Control:
 			self.PlayNow()
 
 	def PlayNow(self):
-		self.__SetState(E_State.now)
+		self.__SetState(E_State.camera)
 		self.title = "Camera"
 		self.playing = "Camera"
 		self.md.PlayCamera()
