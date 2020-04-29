@@ -17,6 +17,7 @@ class Control:
 		self.md = MotionDetector(oneFrame=useFlaskReloader, motionDetectedCb=self.__motionDetected)
 		self.title = ""
 		self.videosDir = "./videos/"
+		self.maxVideosSize = 1000000000
 		self.state = E_State.stopped
 		self.playing = ""
 		
@@ -47,11 +48,12 @@ class Control:
 	def GetMotions(self):
 		videos = []
 		for r, dirs, files in os.walk(self.videosDir):
+			files.sort(reverse=True)
 			for file in files:
-				if '.avi' in file and len(file) == 21:
+				if '.avi' in file and len(file) == 23:
 					vp = file.strip('.avi').split('_')
 					if len(vp) == 6:
-						videoTime = vp[0] + '.' + vp[1] + '.' + vp[2] + ' ' + vp[3] + ':' + vp[4] + ':' + vp[5]
+						videoTime = vp[2] + '.' + vp[1] + '.' + vp[0] + ' ' + vp[3] + ':' + vp[4] + ':' + vp[5]
 						size = int(round(os.path.getsize(r + file) / 1024))
 						videos.append((videoTime, str(size) + 'kB', "/play/" + file))
 		return videos
@@ -87,8 +89,25 @@ class Control:
 			print ("Removing: " + motion)
 
 	def __PruneVideos(self):
-		print ("Removing old files:")
-		# TODO
+		files = []
+		totalSize = 0
+		with os.scandir(self.videosDir) as it:
+			for entry in it:
+				if entry.is_file():
+					size = entry.stat().st_size
+					files.append((entry.path, size))
+					totalSize += size
+
+		if totalSize > self.maxVideosSize:
+			print ("Removing old files:")
+			files.sort(key=lambda tup: tup[0])
+			for f in files:
+				if totalSize > self.maxVideosSize:
+					print("Deleting: " + f[0] + " with size " + str(f[1]))
+					os.remove(f)
+					totalSize -= f[1]
+				else:
+					break
 
 	def Stop(self):
 		with self.lockControl:
@@ -107,7 +126,7 @@ class Control:
 			if not wasRec:
 				self.__PruneVideos()
 				timestamp = datetime.datetime.now()
-				filename = timestamp.strftime("%d_%m_%y_%H_%M_%S.avi")
+				filename = timestamp.strftime("%Y_%m_%d_%H_%M_%S.avi")
 				if self.md.StartRecording(self.videosDir + filename):
 					self.title = "Recording"
 					self.__SetState(E_State.recording)
