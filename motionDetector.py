@@ -6,7 +6,7 @@ import time
 import datetime
 
 class MotionDetector:
-	def __init__(self, oneFrame, accumWeight=0.1):
+	def __init__(self, oneFrame, motionDetectedCb, accumWeight=0.1):
 		# Settings
 		self.accumWeight = accumWeight
 		self.weightedFramesMin = 32
@@ -17,6 +17,8 @@ class MotionDetector:
 		self.videoFps = 30
 		self.cameraInput = 0
 		self.invalidInput = -1
+		self.minInactivityduration = 15
+		self.motionDetectedCb = motionDetectedCb
 
 		# Streams
 		self.outputFrame = None
@@ -184,7 +186,8 @@ class MotionDetector:
 				cv2.rectangle(frame, (minX, minY), (maxX, maxY),
 					(0, 0, 255), 2)
 
-			self.__RememberMotion(motion is not None)
+				self.__RememberMotion(motion is not None)
+				self.motionDetectedCb()
 		
 		self.__UpdateWeighted(gray)
 		self.weghtedFramesProcessed += 1
@@ -231,7 +234,7 @@ class MotionDetector:
 		curTime = datetime.datetime.now()
 		fromLast = curTime - self.lastMotion
 		if movement:
-			if fromLast.seconds < 3:
+			if fromLast.seconds < self.minInactivityduration:
 				self.motionDuration += fromLast.seconds
 			else:
 				self.motionDuration = 0
