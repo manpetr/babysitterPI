@@ -1,4 +1,5 @@
 from motionDetector import MotionDetector
+from audioDetector import AudioDetector
 from imutils.video import VideoStream
 import time
 import datetime
@@ -15,6 +16,7 @@ class E_State(Enum):
 class Control:
 	def __init__(self, useFlaskReloader):
 		self.md = MotionDetector(oneFrame=useFlaskReloader, motionDetectedCb=self.__motionDetected)
+		self.ad = AudioDetector()
 		self.title = ""
 		self.videosDir = "./videos/"
 		self.maxVideosSize = 1000000000
@@ -131,6 +133,10 @@ class Control:
 					self.title = "Recording"
 					self.__SetState(E_State.recording)
 
+					self.title = "Recording audio"
+					self.ad.Start()
+					
+
 	def ToggleWatch(self):
 		if not self.watching:
 			self.PlayNow()
@@ -145,6 +151,7 @@ class Control:
 		
 	def __StopRecording(self):
 		self.md.StopRecording()
+		self.ad.Stop()
 
 	def __SetState(self, state):
 		if(self.__IsState(E_State.recording)):
